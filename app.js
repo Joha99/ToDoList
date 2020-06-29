@@ -4,14 +4,19 @@ const https = require("https");
 
 var app = express();
 
+app.set('view engine', 'ejs');
+
 // GET landing page
 app.get("/", function (req, res) {
   var today = new Date();
+  var day = "";
   if (today.getDay() === 0 || today.getDay() === 6) {
-    res.sendFile(__dirname + "/index.html");
+    day = "weekend";
   } else {
-    res.sendFile(__dirname + "/index.html");
+    day = "weekday";
   }
+  res.render("list", { kindOfDay: day });
+
 });
 
 // POST landing page
