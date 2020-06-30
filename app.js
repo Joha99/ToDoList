@@ -4,12 +4,13 @@ const https = require("https");
 
 var app = express();
 var items = ["Read", "Eat"];
+var workItems = ["Fix bugs"];
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public")); 
+app.use(express.static("public"));
 
-// GET landing page
+// GET /list
 app.get("/", function (req, res) {
   var today = new Date();
 
@@ -17,16 +18,36 @@ app.get("/", function (req, res) {
 
   var day = today.toLocaleDateString("en-US", options);
 
-  res.render("list", { kindOfDay: day, newListItems: items });
+  res.render("list", { listTitle: day, newListItems: items });
 });
 
-// POST from list.ejs
+// POST /list
 app.post("/views/list", function (req, res) {
   console.log(req.body);
-  items.push(req.body.newItem);
-  console.log(items);
-  res.redirect("/");
+  if (req.body.list === "Work") {
+    workItems.push(req.body.newItem);
+    res.redirect("/work");
+  } else {
+    items.push(req.body.newItem);
+    res.redirect("/");
+  }
 });
+
+// GET /work
+app.get("/work", function (req, res) {
+  res.render("list", { listTitle: "Work List", newListItems: workItems });
+});
+
+// POST /work
+app.post("/work", function (req, res) {
+  workItems.push(req.body.newItem);
+  res.redirect("/work");
+});
+
+//GET /about 
+app.get("/about", function (req, res) {
+  res.render("about"); 
+}) 
 
 // run local server on port 3000
 app.listen(3000, function () {
