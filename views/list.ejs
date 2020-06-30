@@ -6,6 +6,23 @@
     <title>To Do List</title>
   </head>
   <body>
-    <h1><%= kindOfDay %> List</h1>
+    <h1><%= kindOfDay %></h1>
+
+    <ul>
+      <% for (let i = 0; i < newListItems.length; i++) { %>
+        <li><%= newListItems[i] %></li>
+      <% } %>
+    </ul>
+
+    <form action="/views/list" method="POST">
+      <label for="newItem">List item:</label>
+      <input
+        type="text"
+        id="newItem"
+        name="newItem"
+        placeholder="To do item"
+      />
+      <button type="submit">Add item</button>
+    </form>
   </body>
 </html>

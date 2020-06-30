@@ -1,46 +1,31 @@
 const express = require("express");
-const bp = require("body-parser");
+const bodyParser = require("body-parser");
 const https = require("https");
 
 var app = express();
+var items = ["Read", "Eat"];
 
 app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // GET landing page
 app.get("/", function (req, res) {
   var today = new Date();
-  var currentDay = today.getDay();
-  var day = "";
 
-  switch (currentDay) {
-    case 0:
-      day = "Sunday";
-      break;
-    case 1:
-      day = "Monday";
-      break;
-    case 2:
-      day = "Tuesday";
-      break;
-    case 3:
-      day = "Wednesday";
-      break;
-    case 4:
-      day = "Thursday";
-      break;
-    case 5:
-      day = "Friday";
-      break;
-    case 6:
-      day = "Saturday";
-      break;
-  }
+  var options = { weekday: "long", day: "numeric", month: "long" };
 
-  res.render("list", { kindOfDay: day });
+  var day = today.toLocaleDateString("en-US", options);
+
+  res.render("list", { kindOfDay: day, newListItems: items });
 });
 
-// POST landing page
-app.post("/", function (req, res) {});
+// POST from list.ejs
+app.post("/views/list", function (req, res) {
+  console.log(req.body);
+  items.push(req.body.newItem);
+  console.log(items);
+  res.redirect("/");
+});
 
 // run local server on port 3000
 app.listen(3000, function () {
