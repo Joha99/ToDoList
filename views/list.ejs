@@ -4,25 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>To Do List</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
   <body>
-    <h1><%= kindOfDay %></h1>
+    <div class="box" id="heading">
+      <h1><%= kindOfDay %></h1>
+    </div>
 
-    <ul>
+    <div class="box">
       <% for (let i = 0; i < newListItems.length; i++) { %>
-        <li><%= newListItems[i] %></li>
+      <div class="item">
+        <input type="checkbox" name="" id="" autocomplete="off" />
+        <p><%= newListItems[i] %></p>
+      </div>
       <% } %>
-    </ul>
 
-    <form action="/views/list" method="POST">
-      <label for="newItem">List item:</label>
-      <input
-        type="text"
-        id="newItem"
-        name="newItem"
-        placeholder="To do item"
-      />
-      <button type="submit">Add item</button>
-    </form>
+      <div class="item">
+        <form action="/views/list" method="POST">
+          <input
+            type="text"
+            id="newItem"
+            name="newItem"
+            placeholder="To do item"
+          />
+          <button type="submit">+</button>
+        </form>
+      </div>
+    </div>
   </body>
 </html>

@@ -7,6 +7,7 @@ var items = ["Read", "Eat"];
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public")); 
 
 // GET landing page
 app.get("/", function (req, res) {
