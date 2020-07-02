@@ -65,13 +65,10 @@ app.get("/", function (req, res) {
 // POST /list
 app.post("/views/list", function (req, res) {
   console.log(req.body);
-  if (req.body.list === "Work") {
-    workItems.push(req.body.newItem);
-    res.redirect("/work");
-  } else {
-    items.push(req.body.newItem);
-    res.redirect("/");
-  }
+  const itemName = req.body.newItem;
+  const newItem = new Item({ name: itemName });
+  newItem.save(); 
+  res.redirect("/"); 
 });
 
 // GET /work
@@ -89,6 +86,20 @@ app.post("/work", function (req, res) {
 app.get("/about", function (req, res) {
   res.render("about");
 });
+
+// POST /delete 
+app.post("/delete", function (req, res) {
+  console.log(req.body);
+  const checkedItemId = req.body.checkbox; 
+  Item.deleteOne({_id: checkedItemId}, function (err) {
+    if (err) {
+      console.log(err); 
+    } else {
+      console.log("successfully checked off and deleted from Items collection. "); 
+      res.redirect("/"); 
+    }
+  }) 
+}); 
 
 // run local server on port 3000
 app.listen(3000, function () {
