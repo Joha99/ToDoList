@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const _ = require("lodash"); 
 
 var app = express();
 // var items = ["Read", "Eat"];
@@ -16,12 +17,19 @@ mongoose.connect("mongodb://localhost:27017/todolistDB", {
   useUnifiedTopology: true,
 });
 
+// create schemas for collections
 const itemSchema = {
   name: String,
 };
 
-// create a new collection called Item(s)
+const customListSchema = {
+  name: String,
+  items: [itemSchema],
+};
+
+// create Collections
 const Item = mongoose.model("Item", itemSchema);
+const List = mongoose.model("List", customListSchema);
 
 // create default documents for the Item(s) collection
 const item1 = new Item({ name: "Welcome to your To Do List!" });
@@ -67,39 +75,75 @@ app.post("/views/list", function (req, res) {
   console.log(req.body);
   const itemName = req.body.newItem;
   const newItem = new Item({ name: itemName });
-  newItem.save(); 
-  res.redirect("/"); 
+  const listName = req.body.listName;
+  if (listName === "Today") {
+    newItem.save();
+    res.redirect("/");
+  } else {
+    List.findOne({ name: listName }, function (err, foundList) {
+      if (!err) {
+        foundList.items.push(newItem);
+        foundList.save();
+        res.redirect("/" + listName);
+      }
+    });
+  }
 });
 
-// GET /work
-app.get("/work", function (req, res) {
-  res.render("list", { listTitle: "Work List", newListItems: workItems });
+// GET /listTitle
+app.get("/:customListName", function (req, res) {
+  const customListName = _.capitalize(req.params.customListName);
+
+  // check if list document with name of customListName already exists
+  List.findOne({ name: customListName }, function (err, list) {
+    if (!err) {
+      if (!list) {
+        // create a new list
+        console.log("list doesn't exist");
+        const list = new List({ name: customListName, items: defaultItems });
+        list.save();
+        res.redirect("/" + customListName);
+      } else {
+        // show the existing list
+        console.log("list exists");
+        res.render("list", { listTitle: list.name, newListItems: list.items });
+      }
+    }
+  });
 });
 
 // POST /work
-app.post("/work", function (req, res) {
-  workItems.push(req.body.newItem);
-  res.redirect("/work");
-});
+// app.post("/work", function (req, res) {
+//   workItems.push(req.body.newItem);
+//   res.redirect("/work");
+// });
 
 //GET /about
 app.get("/about", function (req, res) {
   res.render("about");
 });
 
-// POST /delete 
+// POST /delete
 app.post("/delete", function (req, res) {
   console.log(req.body);
-  const checkedItemId = req.body.checkbox; 
-  Item.deleteOne({_id: checkedItemId}, function (err) {
-    if (err) {
-      console.log(err); 
-    } else {
-      console.log("successfully checked off and deleted from Items collection. "); 
-      res.redirect("/"); 
-    }
-  }) 
-}); 
+  const checkedItemId = req.body.checkbox;
+  const listName = req.body.listName;
+
+  if (listName === "Today") {
+    Item.deleteOne({ _id: checkedItemId }, function (err) {
+      console.log(
+        "successfully checked off and deleted from Items collection. "
+      );
+      res.redirect("/");
+    });
+  } else {
+    List.findOneAndUpdate({ name: listName }, {$pull: {items: {_id: checkedItemId}}}, function (err, results) {
+      if (!err) {
+        res.redirect("/" + listName); 
+      }
+    });
+  }
+});
 
 // run local server on port 3000
 app.listen(3000, function () {
