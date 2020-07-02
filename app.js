@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const _ = require("lodash"); 
+const adminInfo = require(__dirname + "/adminInfo");
 
 var app = express();
 // var items = ["Read", "Eat"];
@@ -12,7 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 // create new DB called todolistDB
-mongoose.connect("mongodb://localhost:27017/todolistDB", {
+mongoose.connect("mongodb+srv://" + adminInfo.mongoDB + "@cluster0.rm8kv.mongodb.net/todolistDB?retryWrites=true&w=majority", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -102,7 +103,7 @@ app.get("/:customListName", function (req, res) {
         console.log("list doesn't exist");
         const list = new List({ name: customListName, items: defaultItems });
         list.save();
-        res.redirect("/" + customListName);
+        res.render("list", { listTitle: list.name, newListItems: list.items });
       } else {
         // show the existing list
         console.log("list exists");
