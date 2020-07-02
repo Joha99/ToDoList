@@ -29,17 +29,28 @@ const item2 = new Item({ name: "Hit the + button to add a new list item." });
 const item3 = new Item({ name: "<-- Check off item to delete it." });
 const defaultItems = [item1, item2, item3];
 
-// add default documents to the Item(s) collection
-// Item.insertMany(defaultItems, function (err) {
-//   if (err) {
-//     console.log("There was an error adding default elements to the Items collection.");
-//   } else {
-//     console.log("Successfully added default items to the Items collection.");
-//   }
-// });
-
 // GET /list
 app.get("/", function (req, res) {
+  // add the default items to the list IFF Items collection is empty
+  Item.count({}, function (err, count) {
+    console.log("There are " + count + " documents in Items collection.");
+    if (count === 0) {
+      // add default documents to the Item(s) collection
+      Item.insertMany(defaultItems, function (err) {
+        if (err) {
+          console.log(
+            "There was an error adding default elements to the Items collection."
+          );
+        } else {
+          console.log(
+            "Successfully added default items to the Items collection."
+          );
+        }
+      });
+    }
+  });
+
+  // get and display all the documents in Items collection
   Item.find({}, function (err, foundItems) {
     if (err) {
       console.log(
